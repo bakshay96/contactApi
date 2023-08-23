@@ -16,7 +16,7 @@ contactRoutes.get("/", getAllContact);
 contactRoutes.get("/:id",getContact);
 
 //create contact use post requrest
-contactRoutes.post("/create", createContact);
+contactRoutes.post("/", createContact);
 
 //update contact using id param * use put rquest
 //put replace old contact 
