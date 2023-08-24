@@ -55,31 +55,46 @@ const registerUser=asyncHandler(async(req,res)=>{
 //@access public
 const loginUser=asyncHandler(async(req,res)=>{
     const {email,password}=req.body;
-    if(!email || !password)
-    {
-        res.status(400);
-        throw new Error("All fileds are mandatory.!")
+    
+    try{
+        const user= await UserModel.findOne({email});
+        if(user){
+            bcrypt.compare(password,user.password,(err, result)=> {
+                 if(result){
+                    res.send({"msg":"Login Successfull !!","token":jwt.sign({"userID":user._id}, "masai")});
+                 }else{
+                    res.send("Wrong Credentials !!");
+                 }
+            });
+        }else{
+            res.send("Please Register First !!");
+        }
+    }catch(err){
+        res.send({"msg":err.message});
     }
-    const user=await UserModel.find({email});
-    console.log(user);
-    // compare password with hash hashPassword
-    const match = await bcrypt.compare(password, user.password);
-    console.log(match)
-    if(match)
-    {
-        const accessToken=jwt.sign({
-            user:{
-                username:user.username,
-                email:user.email
-            },
-        },process.env.ACCESS_TOKEN_SECRET,{expiresIn:"1m"})
-        res.status(200).json({accessToken})
-    }
-    else
-    {
-        res.status(401);
-        throw new Error("Invalid Credentials.!")
-    }
+    // if(!email || !password)
+    // {
+    //     res.status(400);
+    //     throw new Error("All fileds are mandatory.!")
+    // }
+    // const user=await UserModel.find({email});
+    // console.log(user);
+    // // compare password with hash hashPassword
+    // if(user && bcrypt.compare(password, user.password))
+    // {
+    //     const accessToken=jwt.sign({
+    //         user:{
+    //             username:user.username,
+    //             email:user.email
+    //         },
+    //     },process.env.ACCESS_TOKEN_SECRET,{expiresIn:"1m"})
+    //     res.status(200).json({accessToken})
+    // }
+    // else
+    // {
+    //     res.status(401);
+    //     throw new Error("Invalid Credentials.!")
+    // }
    
 
 })
